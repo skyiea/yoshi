@@ -18,6 +18,12 @@ module.exports = function(api, opts = {}) {
   const options = normaliseOptions(opts);
   const inWebpack = process.env.IN_WEBPACK;
   let { modules } = options;
+  const { legacyDecorators = true } = options;
+  let decoratorsBeforeExport;
+  // `legacyDecorators` and `legacy` are not compatible
+  if (!legacyDecorators) {
+    decoratorsBeforeExport = true;
+  }
   if (typeof modules === 'undefined') {
     modules = inWebpack ? false : DEFAULT_MODULES;
   }
@@ -51,9 +57,11 @@ module.exports = function(api, opts = {}) {
       [
         require('@babel/plugin-proposal-decorators').default,
         {
+          // Use the legacy (stage 1) decorators syntax and behavior.
+          legacy: legacyDecorators,
           // Enable export after decorator syntax. It's also a part of the spec and tc39 is not made a decision about it.
           // Read more https://github.com/tc39/proposal-decorators/issues/69
-          decoratorsBeforeExport: true,
+          decoratorsBeforeExport,
         },
       ],
       [
