@@ -1,4 +1,5 @@
 {
-  "app.title": "Hallo Wereld",
-  "app.intro": "Get begonnen hier: https://github.com/wix-private/wix-js-stack"
+  "title": "Eine neue App wurde erstellt ...",
+  "intro": "Bearbeiten Sie <code>src/components/App.js</code>, um diese Seite zu bearbeiten.",
+  "reference": "In <a target=\"_blank\" href=\"https://wix.github.io/yoshi\">Yoshis Dokumentation</a> finden Sie Referenz und Anleitungen."
 }

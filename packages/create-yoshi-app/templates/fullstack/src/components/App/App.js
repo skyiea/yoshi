@@ -10,12 +10,15 @@ class App extends React.Component {
 
   render() {
     const { t } = this.props;
+
     return (
       <div className={s.root}>
-        <div className={s.header}>
-          <h2>{t('app.title')}</h2>
-        </div>
-        <p className={s.intro}>{t('app.intro')}</p>
+        <h2>{t('title')}</h2>
+        <p
+          className={s.intro}
+          dangerouslySetInnerHTML={{ __html: t('intro') }}
+        />
+        <p dangerouslySetInnerHTML={{ __html: t('reference') }} />
       </div>
     );
   }
