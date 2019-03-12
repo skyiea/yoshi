@@ -2,6 +2,7 @@ const fs = require('fs');
 const globby = require('globby');
 const { envs } = require('./constants');
 const globs = require('yoshi-config/globs');
+const { isTypescriptProject } = require('yoshi-helpers');
 
 const modulePathIgnorePatterns = ['<rootDir>/dist/', '<rootDir>/target/'];
 module.exports = {
@@ -62,8 +63,16 @@ module.exports = {
           ],
 
           transform: {
-            '^.+\\.jsx?$': require.resolve('./transforms/babel'),
-            '^.+\\.tsx?$': require.resolve('ts-jest'),
+            ...(!isTypescriptProject()
+              ? {
+                  '^.+\\.jsx?$': require.resolve('./transforms/babel'),
+                }
+              : {}),
+            ...(isTypescriptProject()
+              ? {
+                  '^.+\\.(t|j)sx?$': require.resolve('ts-jest'),
+                }
+              : {}),
             '\\.st.css?$': require.resolve('@stylable/jest'),
             '\\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|otf|eot|wav|mp3|html|md)$': require.resolve(
               './transforms/file',
