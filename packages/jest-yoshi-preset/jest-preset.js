@@ -67,12 +67,9 @@ module.exports = {
               ? {
                   '^.+\\.jsx?$': require.resolve('./transforms/babel'),
                 }
-              : {}),
-            ...(isTypescriptProject()
-              ? {
-                  '^.+\\.(t|j)sx?$': require.resolve('ts-jest'),
-                }
-              : {}),
+              : {
+                '^.+\\.(t|j)sx?$': require.resolve('ts-jest'),
+              }),
             '\\.st.css?$': require.resolve('@stylable/jest'),
             '\\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|otf|eot|wav|mp3|html|md)$': require.resolve(
               './transforms/file',
