@@ -457,7 +457,20 @@ function createCommonWebpackConfig({
               issuer: {
                 test: /\.(j|t)sx?$/,
               },
-              loader: '@svgr/webpack',
+              use: [
+                '@svgr/webpack',
+                {
+                  loader: 'svg-url-loader',
+                  options: {
+                    iesafe: true,
+                    noquotes: true,
+                    limit: 10000,
+                    name: isDebug
+                      ? 'media/[name].[ext]'
+                      : addHashToAssetName('media/[name].[ext]'),
+                  },
+                },
+              ],
             },
             {
               test: /\.svg$/,
