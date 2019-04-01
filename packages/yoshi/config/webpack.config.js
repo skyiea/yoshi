@@ -73,8 +73,6 @@ const computedSeparateCss =
 
 const artifactVersion = process.env.ARTIFACT_VERSION;
 
-const staticAssetName = 'media/[name].[ext]';
-
 // default public path
 let publicPath = '/';
 
@@ -96,6 +94,14 @@ function exists(entry) {
       cwd: SRC_DIR,
     }).length > 0
   );
+}
+
+function addHashToAssetName(name) {
+  if (project.experimentalHtmlFeature) {
+    return name.replace('[name]', `[name].[contenthash:8]`);
+  }
+
+  return name;
 }
 
 // NOTE ABOUT PUBLIC PATH USING UNPKG SERVICE
@@ -284,8 +290,12 @@ function createCommonWebpackConfig({
       path: STATICS_DIR,
       publicPath,
       pathinfo: isDebug,
-      filename: isDebug ? '[name].bundle.js' : '[name].bundle.min.js',
-      chunkFilename: isDebug ? '[name].chunk.js' : '[name].chunk.min.js',
+      filename: isDebug
+        ? '[name].bundle.js'
+        : addHashToAssetName('[name].bundle.min.js'),
+      chunkFilename: isDebug
+        ? '[name].chunk.js'
+        : addHashToAssetName('[name].chunk.min.js'),
       hotUpdateMainFilename: 'updates/[hash].hot-update.json',
       hotUpdateChunkFilename: 'updates/[id].[hash].hot-update.js',
     },
@@ -447,17 +457,7 @@ function createCommonWebpackConfig({
               issuer: {
                 test: /\.(j|t)sx?$/,
               },
-              use: [
-                require.resolve('@svgr/webpack'),
-                {
-                  loader: 'svg-url-loader',
-                  options: {
-                    iesafe: true,
-                    noquotes: true,
-                    limit: 10000,
-                  },
-                },
-              ],
+              loader: '@svgr/webpack',
             },
             {
               test: /\.svg$/,
@@ -467,6 +467,9 @@ function createCommonWebpackConfig({
                   options: {
                     iesafe: true,
                     limit: 10000,
+                    name: isDebug
+                      ? 'media/[name].[ext]'
+                      : addHashToAssetName('media/[name].[ext]'),
                   },
                 },
               ],
@@ -500,7 +503,9 @@ function createCommonWebpackConfig({
               test: reAssets,
               loader: 'url-loader',
               options: {
-                name: staticAssetName,
+                name: isDebug
+                  ? 'media/[name].[ext]'
+                  : addHashToAssetName('media/[name].[ext]'),
                 limit: 10000,
               },
             },
@@ -613,37 +618,45 @@ function createClientWebpackConfig({
       ...config.plugins,
 
       // https://github.com/jantimon/html-webpack-plugin
-      ...(fs.pathExistsSync(config.context)
-        ? globby
-            .sync('**/*.+(ejs|vm)', { cwd: config.context })
-            .map(templatePath => {
-              const basename = path.basename(templatePath);
+      ...(project.experimentalHtmlFeature && fs.pathExistsSync(config.context)
+        ? [
+            ...globby
+              .sync('**/*.+(ejs|vm)', { cwd: config.context })
+              .map(templatePath => {
+                const basename = path.basename(templatePath);
 
-              return new HtmlWebpackPlugin({
-                // Generate a `filename.debug.ejs` for non-minified compilation
-                filename: isDebug
-                  ? basename.replace(/\.[0-9a-z]+$/i, match => `.debug${match}`)
-                  : basename,
-                // Only use chunks from the entry with the same name as the template
-                // file
-                chunks: [basename.replace(/\.[0-9a-z]+$/i, '')],
-                template: templatePath,
-                minify: !isDebug,
-              });
-            })
+                return new HtmlWebpackPlugin({
+                  // Generate a `filename.debug.ejs` for non-minified compilation
+                  filename: isDebug
+                    ? basename.replace(
+                        /\.[0-9a-z]+$/i,
+                        match => `.debug${match}`,
+                      )
+                    : basename,
+                  // Only use chunks from the entry with the same name as the template
+                  // file
+                  chunks: [basename.replace(/\.[0-9a-z]+$/i, '')],
+                  template: templatePath,
+                  minify: !isDebug,
+                });
+              }),
+
+            // Polyfill via https://polyfill.io
+            new HtmlPolyfillPlugin(HtmlWebpackPlugin, [
+              buildUrl(
+                'https://static.parastorage.com/polyfill/v2/polyfill.min.js',
+                {
+                  queryParams: {
+                    features: ['default', 'es6', 'es7', 'es2017'],
+                    flags: ['gated'],
+                    unknown: 'polyfill',
+                    rum: 0,
+                  },
+                },
+              ),
+            ]),
+          ]
         : []),
-
-      // Polyfill via https://polyfill.io
-      new HtmlPolyfillPlugin(HtmlWebpackPlugin, [
-        buildUrl('https://static.parastorage.com/polyfill/v2/polyfill.min.js', {
-          queryParams: {
-            features: ['default', 'es6', 'es7', 'es2017'],
-            flags: ['gated'],
-            unknown: 'polyfill',
-            rum: 0,
-          },
-        }),
-      ]),
 
       // https://github.com/gajus/write-file-webpack-plugin
       new WriteFilePlugin({
@@ -661,12 +674,23 @@ function createClientWebpackConfig({
         ? [
             // https://github.com/webpack-contrib/mini-css-extract-plugin
             new MiniCssExtractPlugin({
-              filename: isDebug ? '[name].css' : '[name].min.css',
+              filename: isDebug
+                ? '[name].css'
+                : addHashToAssetName('[name].min.css'),
+              chunkFilename: isDebug
+                ? '[name].chunk.css'
+                : addHashToAssetName('[name].chunk.min.css'),
             }),
             // https://github.com/wix-incubator/tpa-style-webpack-plugin
             ...(project.enhancedTpaStyle ? [new TpaStyleWebpackPlugin()] : []),
             // https://github.com/wix/rtlcss-webpack-plugin
-            new RtlCssPlugin(isDebug ? '[name].rtl.css' : '[name].rtl.min.css'),
+            ...(!project.experimentalHtmlFeature
+              ? [
+                  new RtlCssPlugin(
+                    isDebug ? '[name].rtl.css' : '[name].rtl.min.css',
+                  ),
+                ]
+              : []),
           ]
         : []),
 
