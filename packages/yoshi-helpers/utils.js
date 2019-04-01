@@ -212,15 +212,24 @@ const getProjectArtifactId = () => {
 
 module.exports.getProjectArtifactId = getProjectArtifactId;
 
+const getArtifactVersion = () => {
+  if (project.experimentalHtmlFeature) {
+    return 'dist';
+  }
+
+  return process.env.ARTIFACT_VERSION
+    ? // Dev CI
+      process.env.ARTIFACT_VERSION.replace('-SNAPSHOT', '')
+    : // PR CI won't have a version, only BUILD_NUMBER and BUILD_VCS_NUMBER
+      process.env.BUILD_VCS_NUMBER;
+};
+
 /**
  * Gets the CDN base path for the project at the current working dir
  */
 module.exports.getProjectCDNBasePath = () => {
   const artifactName = getProjectArtifactId();
-
-  const artifactVersion = process.env.ARTIFACT_VERSION
-    ? process.env.ARTIFACT_VERSION.replace('-SNAPSHOT', '') // Dev CI
-    : process.env.BUILD_VCS_NUMBER; // PR CI won't have a version, only BUILD_NUMBER and BUILD_VCS_NUMBER
+  const artifactVersion = getArtifactVersion();
 
   return `${staticsDomain}/${artifactName}/${artifactVersion}/`;
 };
