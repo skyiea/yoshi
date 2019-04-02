@@ -73,6 +73,8 @@ const computedSeparateCss =
 
 const artifactVersion = process.env.ARTIFACT_VERSION;
 
+const staticAssetName = addHashToAssetName('media/[name].[ext]');
+
 // default public path
 let publicPath = '/';
 
@@ -291,10 +293,10 @@ function createCommonWebpackConfig({
       publicPath,
       pathinfo: isDebug,
       filename: isDebug
-        ? '[name].bundle.js'
+        ? addHashToAssetName('[name].bundle.js')
         : addHashToAssetName('[name].bundle.min.js'),
       chunkFilename: isDebug
-        ? '[name].chunk.js'
+        ? addHashToAssetName('[name].chunk.js')
         : addHashToAssetName('[name].chunk.min.js'),
       hotUpdateMainFilename: 'updates/[hash].hot-update.json',
       hotUpdateChunkFilename: 'updates/[id].[hash].hot-update.js',
@@ -465,9 +467,7 @@ function createCommonWebpackConfig({
                     iesafe: true,
                     noquotes: true,
                     limit: 10000,
-                    name: isDebug
-                      ? 'media/[name].[ext]'
-                      : addHashToAssetName('media/[name].[ext]'),
+                    name: staticAssetName,
                   },
                 },
               ],
@@ -480,9 +480,7 @@ function createCommonWebpackConfig({
                   options: {
                     iesafe: true,
                     limit: 10000,
-                    name: isDebug
-                      ? 'media/[name].[ext]'
-                      : addHashToAssetName('media/[name].[ext]'),
+                    name: staticAssetName,
                   },
                 },
               ],
@@ -516,9 +514,7 @@ function createCommonWebpackConfig({
               test: reAssets,
               loader: 'url-loader',
               options: {
-                name: isDebug
-                  ? 'media/[name].[ext]'
-                  : addHashToAssetName('media/[name].[ext]'),
+                name: staticAssetName,
                 limit: 10000,
               },
             },
@@ -688,10 +684,10 @@ function createClientWebpackConfig({
             // https://github.com/webpack-contrib/mini-css-extract-plugin
             new MiniCssExtractPlugin({
               filename: isDebug
-                ? '[name].css'
+                ? addHashToAssetName('[name].css')
                 : addHashToAssetName('[name].min.css'),
               chunkFilename: isDebug
-                ? '[name].chunk.css'
+                ? addHashToAssetName('[name].chunk.css')
                 : addHashToAssetName('[name].chunk.min.css'),
             }),
             // https://github.com/wix-incubator/tpa-style-webpack-plugin
