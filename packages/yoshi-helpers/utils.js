@@ -212,7 +212,7 @@ const getProjectArtifactId = () => {
 
 module.exports.getProjectArtifactId = getProjectArtifactId;
 
-const getArtifactVersion = () => {
+const getArtifactVersionInCdnPath = () => {
   if (project.experimentalHtmlFeature) {
     return 'dist';
   }
@@ -229,7 +229,7 @@ const getArtifactVersion = () => {
  */
 module.exports.getProjectCDNBasePath = () => {
   const artifactName = getProjectArtifactId();
-  const artifactVersion = getArtifactVersion();
+  const artifactVersion = getArtifactVersionInCdnPath();
 
   return `${staticsDomain}/${artifactName}/${artifactVersion}/`;
 };
