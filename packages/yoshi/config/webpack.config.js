@@ -100,7 +100,7 @@ function exists(entry) {
 
 function addHashToAssetName(name) {
   if (project.experimentalBuildHtml) {
-    return name.replace('[name]', `[name].[contenthash:8]`);
+    return name.replace('[name]', '[name].[contenthash:8]');
   }
 
   return name;
