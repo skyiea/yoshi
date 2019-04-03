@@ -16,7 +16,7 @@ module.exports = {
   babel: [path.join(base, '**', '*.js{,x}'), 'index.js'],
   specs: `${base}/**/*.+(spec|it).+(js|ts){,x}`,
   e2eTests: `${base}/**/*.e2e.+(js|ts){,x}`,
-  unitTests: `${base}/**/*.spec.+(ts|js){,x}`,
+  unitTests: `${base}/**/{,*.}spec.+(ts|js){,x}`,
   testFilesWatch: [path.join(base, '**', '*.(ts|js){,x}'), 'index.js'],
   singleModule: {
     clientDist: statics,
