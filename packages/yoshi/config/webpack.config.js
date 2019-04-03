@@ -693,7 +693,7 @@ function createClientWebpackConfig({
             // https://github.com/wix-incubator/tpa-style-webpack-plugin
             ...(project.enhancedTpaStyle ? [new TpaStyleWebpackPlugin()] : []),
             // https://github.com/wix/rtlcss-webpack-plugin
-            ...(!project.experimentalHtmlFeature
+            ...(!project.experimentalBuildHtml
               ? [
                   new RtlCssPlugin(
                     isDebug ? '[name].rtl.css' : '[name].rtl.min.css',
