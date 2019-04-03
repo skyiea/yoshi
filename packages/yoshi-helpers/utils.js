@@ -212,26 +212,34 @@ const getProjectArtifactId = () => {
 
 module.exports.getProjectArtifactId = getProjectArtifactId;
 
-const getArtifactVersionInCdnPath = () => {
-  if (project.experimentalBuildHtml) {
-    return 'dist';
-  }
-
-  return process.env.ARTIFACT_VERSION
-    ? // Dev CI
-      process.env.ARTIFACT_VERSION.replace('-SNAPSHOT', '')
-    : // PR CI won't have a version, only BUILD_NUMBER and BUILD_VCS_NUMBER
-      process.env.BUILD_VCS_NUMBER;
-};
-
 /**
  * Gets the CDN base path for the project at the current working dir
  */
 module.exports.getProjectCDNBasePath = () => {
   const artifactName = getProjectArtifactId();
-  const artifactVersion = getArtifactVersionInCdnPath();
 
-  return `${staticsDomain}/${artifactName}/${artifactVersion}/`;
+  let artifactPath = '';
+
+  if (project.experimentalBuildHtml) {
+    // Not to be confused with Yoshi's `dist` directory.
+    //
+    // Static assets are deployed to two locations on the CDN:
+    //
+    // - `https://static.parastorage.com/services/service-name/dist/asset.f43a1.js`
+    // - `https://static.parastorage.com/services/service-name/1.2.3/asset.js`
+    //
+    // If this experimental feature is enabled, we can benefit from better caching by configuring
+    // Webpack's `publicUrl` to use the first option.
+    artifactPath = 'dist';
+  } else {
+    artifactPath = process.env.ARTIFACT_VERSION
+      ? // Dev CI
+        process.env.ARTIFACT_VERSION.replace('-SNAPSHOT', '')
+      : // PR CI won't have a version, only BUILD_NUMBER and BUILD_VCS_NUMBER
+        process.env.BUILD_VCS_NUMBER;
+  }
+
+  return `${staticsDomain}/${artifactName}/${artifactPath}/`;
 };
 
 module.exports.killSpawnProcessAndHisChildren = child => {
