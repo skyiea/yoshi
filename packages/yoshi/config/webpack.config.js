@@ -99,7 +99,7 @@ function exists(entry) {
 }
 
 function addHashToAssetName(name) {
-  if (project.experimentalHtmlFeature) {
+  if (project.experimentalBuildHtml) {
     return name.replace('[name]', `[name].[contenthash:8]`);
   }
 
