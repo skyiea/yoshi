@@ -213,7 +213,7 @@ const getProjectArtifactId = () => {
 module.exports.getProjectArtifactId = getProjectArtifactId;
 
 const getArtifactVersionInCdnPath = () => {
-  if (project.experimentalHtmlFeature) {
+  if (project.experimentalBuildHtml) {
     return 'dist';
   }
 
