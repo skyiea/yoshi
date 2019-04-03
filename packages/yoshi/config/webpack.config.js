@@ -627,7 +627,7 @@ function createClientWebpackConfig({
       ...config.plugins,
 
       // https://github.com/jantimon/html-webpack-plugin
-      ...(project.experimentalHtmlFeature && fs.pathExistsSync(config.context)
+      ...(project.experimentalBuildHtml && fs.pathExistsSync(config.context)
         ? [
             ...globby
               .sync('**/*.+(ejs|vm)', { cwd: config.context })
